@@ -86,7 +86,7 @@ def accept_connections():
 def send_file(conn, msg):
     file_content = ""
     if msg == "server":
-        with open("clientHTML_copy.html") as f:
+        with open("clientHTML.html") as f:
             for line in f:
                 file_content += line
             conn.send(str.encode(file_content, 'utf-8'))
