@@ -27,11 +27,16 @@ class Browser(QtGui.QMainWindow, QWebView):
 
     # -----------------DISPLAY HTML TO BROWSER----------------- #
 
-    def display_html(self, html_content):
-        if html_content != "google.com":
-            self.ui.browser_window.setHtml(html_content)
-        else:
+    def display_html(self, data):
+        html_content_list = data.split('\n')
+        data_list = data.split(":")
+        if html_content_list[0] == "<!DOCTYPE HTML>":
+            self.ui.browser_window.setHtml(data)
+        elif data == 'google.com':
             self.ui.browser_window.load(QtCore.QUrl("http://google.com"))
+        elif data_list[0] == "http":
+            self.ui.browser_window.load(QtCore.QUrl(str(data)))
+            print('this is ' + data)
 
 # -----------------QT THREAD TO SEND MSG FROM SERVER TO GUI----------------- #
 
@@ -52,8 +57,8 @@ def socket_create():
     global host
     global port
     global s
-    host = '192.168.2.230'
-    port = 9989
+    host = '192.168.2.224'
+    port = 9988
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
 
@@ -80,7 +85,9 @@ def send_msg(msg):
 
         if msg == "server":
             s.send(str.encode(msg, "utf-8"))
-        elif msg == "google.com" or msg != "":
+        elif msg == "google.com":
+            s.send(str.encode(msg, "utf-8"))
+        elif msg != "":
             s.send(str.encode(msg, "utf-8"))
         elif msg == "quit":
             s.close()
