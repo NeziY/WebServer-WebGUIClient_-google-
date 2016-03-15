@@ -16,7 +16,7 @@ def socket_create():
         global port
         global s
         host = ''
-        port = 9989
+        port = 9988
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     except socket.error as msg:
         print("Socket creation error " + str(msg))
@@ -84,15 +84,23 @@ def accept_connections():
 
 
 def send_file(conn, msg):
-    file_content = ""
-    if msg == "server":
-        with open("clientHTML.html") as f:
+    file_content = ''
+    if msg == 'server':
+        with open('clientHTML_copy.html') as f:
             for line in f:
                 file_content += line
             conn.send(str.encode(file_content, 'utf-8'))
             f.close()
-    if msg == 'google.com':
+    elif msg == 'google.com':
         conn.send(str.encode('google.com', 'utf-8'))
+    elif msg != '':
+        msg_list = msg.split(' ')
+        query = msg_list[0]
+        if len(msg_list) != 1:
+            msg_list.remove(msg_list[0])
+            for words in msg_list:
+                query = query + '+' + words
+        conn.send(str.encode('http://google.com/search?q=' + query, 'utf-8'))
 
 # -----------------LISTEN FOR INCOMING DATA FUNCTION----------------- #
 
@@ -108,9 +116,11 @@ def listening_for_msgs(conn):
                 HandshakeThread.start()
             elif rcv_msg_str == 'server':
                 send_file(conn, "server")
-            elif rcv_msg_str == "google.com" or rcv_msg_str != "":
+            elif rcv_msg_str == "google.com":
                 send_file(conn, 'google.com')
                 print(rcv_msg_str)
+            elif rcv_msg_str != "":
+                send_file(conn, rcv_msg_str)
             else:
                 pass
 
